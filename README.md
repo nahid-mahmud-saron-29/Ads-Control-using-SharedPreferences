@@ -24,8 +24,16 @@ if (response.contains("SHOW")){
 } else {
     sharedPreferences.edit().putBoolean("SHOW_ADS", false).apply();
 }
-MainActivity2.java (ডেটা রিড করা)
-Java
+
+
+
+
+
+
+
+MainActivity2.java 
+
+
 SharedPreferences sharedPreferences = getSharedPreferences("AdsSettings", MODE_PRIVATE);
 boolean shouldShowAds = sharedPreferences.getBoolean("SHOW_ADS", false);
 
