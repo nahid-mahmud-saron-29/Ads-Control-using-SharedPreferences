@@ -1,5 +1,6 @@
 package com.example.adscontrol;
 
+import android.content.SharedPreferences; // ইম্পোর্ট করতে হবে
 import android.os.Bundle;
 import android.view.View;
 
@@ -29,9 +30,10 @@ public class MainActivity2 extends AppCompatActivity {
 
         adView = findViewById(R.id.adView);
 
-        // প্রথম Activity থেকে পাঠানো Boolean ডাটাটি এখানে রিসিভ করা হচ্ছে
-        // কোনো কারণে ডাটা না পেলে ডিফল্ট ভ্যালু হিসেবে false থাকবে
-        boolean shouldShowAds = getIntent().getBooleanExtra("SHOW_ADS_KEY", false);
+        // SharedPreferences থেকে ডাটা পড়া হচ্ছে
+        SharedPreferences sharedPreferences = getSharedPreferences("AdsSettings", MODE_PRIVATE);
+        // "SHOW_ADS" কি-এর মান আনা হচ্ছে, যদি কিছু না পায় তবে ডিফল্ট হিসেবে false ধরবে
+        boolean shouldShowAds = sharedPreferences.getBoolean("SHOW_ADS", false);
 
         if (shouldShowAds){
             adView.setVisibility(View.VISIBLE);

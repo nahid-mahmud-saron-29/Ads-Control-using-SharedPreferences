@@ -1,6 +1,7 @@
 package com.example.adscontrol;
 
 import android.content.Intent;
+import android.content.SharedPreferences; // ইম্পোর্ট করতে হবে
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
@@ -24,8 +25,6 @@ import com.google.android.gms.ads.MobileAds;
 public class MainActivity extends AppCompatActivity {
     AdView adView;
     Button btn;
-    // static বাদ দিয়ে সাধারণ লোকাল ভ্যারিয়েবল করা হলো
-    boolean showAds = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,8 +45,8 @@ public class MainActivity extends AppCompatActivity {
             MobileAds.initialize(this, initializationStatus -> {});
         }).start();
 
-        AdRequest adRequest = new AdRequest.Builder().build();
-        adView.loadAd(adRequest);
+        // SharedPreferences তৈরি করা হচ্ছে
+        SharedPreferences sharedPreferences = getSharedPreferences("AdsSettings", MODE_PRIVATE);
 
         RequestQueue queue = Volley.newRequestQueue(this);
         String url = "http://192.168.0.107/showAds.php";
@@ -57,20 +56,23 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onResponse(String response) {
                         if (response.contains("SHOW")){
-                            showAds = true;
+                            // লোকাল মেমরিতে true সেভ করা হচ্ছে
+                            sharedPreferences.edit().putBoolean("SHOW_ADS", true).apply();
+
                             adView.setVisibility(View.VISIBLE);
                             AdRequest adRequest = new AdRequest.Builder().build();
                             adView.loadAd(adRequest);
                         } else {
-                            showAds = false;
+                            // লোকাল মেমরিতে false সেভ করা হচ্ছে
+                            sharedPreferences.edit().putBoolean("SHOW_ADS", false).apply();
                             adView.setVisibility(View.GONE);
                         }
                     }
                 }, new Response.ErrorListener() {
             @Override
             public void onErrorResponse(VolleyError error) {
-                // এরর আসলেও সেফটি হিসেবে অ্যাড হাইড থাকবে
-                showAds = false;
+                // নেটওয়ার্ক এরর হলে সেফটির জন্য false সেভ থাকবে
+                sharedPreferences.edit().putBoolean("SHOW_ADS", false).apply();
                 adView.setVisibility(View.GONE);
             }
         });
@@ -80,9 +82,8 @@ public class MainActivity extends AppCompatActivity {
         btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                // এখন আর Intent-এ করে ডাটা পাঠাতে হবে না, সরাসরি চলে গেলেই হবে
                 Intent myInt = new Intent(MainActivity.this, MainActivity2.class);
-                // Intent এর মাধ্যমে পরবর্তী Activity তে ডাটা পাস করা হচ্ছে
-                myInt.putExtra("SHOW_ADS_KEY", showAds);
                 startActivity(myInt);
             }
         });
